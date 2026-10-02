@@ -33,3 +33,4 @@ __pycache__/
 !.github/
 !.github/workflows/
 !.github/workflows/**
+astro/misc/SBrowser/system.img/preload/SBrowser/SBrowser.apk
