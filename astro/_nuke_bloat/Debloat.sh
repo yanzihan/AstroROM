@@ -62,7 +62,6 @@ BLOAT_TARGETS+=(
     "Scone"
     "Upday"
     "VzCloud"
-    "NfcNci"
     "YourPhone_P1_5"
     "KidsHome_Installer"
     "OmcAgent5" # App Recommendations
