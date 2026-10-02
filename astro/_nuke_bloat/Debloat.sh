@@ -20,7 +20,7 @@ SILENT REMOVE "system" "etc/boot-image.prof"
 
 # Remove folders
 SILENT REMOVE "system" "hidden"
-SILENT REMOVE "system" "preload"
+SILENT REMOVE "system" "preload/Facebook_stub_preload"
 
 declare -a BLOAT_TARGETS=()
 
@@ -189,13 +189,10 @@ SILENT REMOVE "system" "etc/permissions/signature-permissions-com.sec.android.mi
 
 #  SAMSUNG APPS (Calendar, Clock, Free, Notes, Browser & Reminder)
 BLOAT_TARGETS+=(
-    "SamsungCalendar"
-    "ClockPackage"
     "MinusOnePage"            # Samsung Free
     "SmartReminder"
     "OfflineLanguageModel_stub"
     "Notes40"
-    "SBrowser"
 )
 
 SILENT REMOVE "system" "etc/permissions/signature-permissions-com.samsung.android.offline.languagemodel.xml"
