@@ -26,7 +26,13 @@ INIT_BUILD_ENV()
 
     setfacl -R -d -m u:"${SUDO_USER:-$(whoami)}":rwx "$ASTROROM"
 
-    EXTRACT_ROM || ERROR_EXIT "Firmware extraction failed."
+# ==================== 修改开始：检查并跳过重复解包 ====================
+    if [ -d "$SOURCE_FW" ] && [ "$(ls -A "$SOURCE_FW" 2>/dev/null)" ]; then
+        LOG_INFO "Unpacked firmware already exists in $SOURCE_FW, skipping EXTRACT_ROM."
+    else
+        EXTRACT_ROM || ERROR_EXIT "Firmware extraction failed."
+    fi
+    # ==================== 修改结束 ====================
 
     LOG_BEGIN "Creating final workspace"
     CREATE_WORKSPACE

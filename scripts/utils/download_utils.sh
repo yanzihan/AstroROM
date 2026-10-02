@@ -15,31 +15,24 @@
 #  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 #
 
-
-# [
 FW_DIR="${ASTROROM}/firmware"
 FW_BASE="${FW_DIR}/downloaded"
-
 
 DOWNLOAD_FW() {
     local TARGET_FIRMWARE="${1:-}"
     local TEMP_DOWNLOAD_DIR="${FW_BASE}/tmp_download"
-
     _CHECK_NETWORK_CONNECTION && LOG_INFO "Internet connection [OK]" || LOG_WARN "Cannot connect to internet."
 
     [[ -z "$MODEL$EXTRA_MODEL$STOCK_MODEL" ]] && ERROR_EXIT "No firmware configs found."
-
     mkdir -p "$FW_BASE"
 
     declare -A PROCESSED_MODELS
-
     for CONFIG_ENTRY in \
         "MAIN|$MODEL|$CSC|$IMEI" \
         "EXTRA|$EXTRA_MODEL|$EXTRA_CSC|${EXTRA_IMEI:-$IMEI}" \
         "STOCK|$STOCK_MODEL|$STOCK_CSC|$STOCK_IMEI"
     do
         IFS="|" read -r FW_PREFIX DEVICE_MODEL REGION_CODE DEVICE_IMEI <<< "$CONFIG_ENTRY"
-
         [[ -z "$DEVICE_MODEL" || -z "$REGION_CODE" ]] && continue
 
         if [[ -n "$TARGET_FIRMWARE" && "${FW_PREFIX,,}" != "${TARGET_FIRMWARE,,}" ]]; then
@@ -57,10 +50,8 @@ DOWNLOAD_FW() {
             "$FW_BASE" \
             "$TEMP_DOWNLOAD_DIR"
     done
-
     rm -rf "$TEMP_DOWNLOAD_DIR"
 }
-
 
 FETCH_FW() {
     local FW_PREFIX="$1"
@@ -69,7 +60,7 @@ FETCH_FW() {
     local DEVICE_IMEI="$4"
     local BASE_DIR="$5"
     local TEMP_DIR="$6"
-
+    
     local TARGET_DIR="${BASE_DIR}/${DEVICE_MODEL}_${REGION_CODE}"
     local METADATA_FILE="${TARGET_DIR}/firmware.info"
     local FW_OUTPUT_DIR="${TEMP_DIR}/${DEVICE_MODEL}_${REGION_CODE}"
@@ -77,16 +68,19 @@ FETCH_FW() {
     LOG_BEGIN "Checking Firmware for $DEVICE_MODEL ($REGION_CODE)..."
 
     local HAS_LOCAL_FIRMWARE=false
-
     if [[ -d "$TARGET_DIR" ]]; then
         if ls "$TARGET_DIR"/AP_*.tar.md5 >/dev/null 2>&1; then
             local AP_FILE_PATH
             AP_FILE_PATH=$(ls "$TARGET_DIR"/AP_*.tar.md5 2>/dev/null | head -1)
-
             if [[ -f "$AP_FILE_PATH" && $(stat -f%z "$AP_FILE_PATH" 2>/dev/null || stat -c%s "$AP_FILE_PATH" 2>/dev/null) -gt 1024 ]]; then
                 HAS_LOCAL_FIRMWARE=true
             fi
         fi
+    fi
+
+    if [[ "$HAS_LOCAL_FIRMWARE" == true ]]; then
+        LOG_INFO "本地固件已存在，跳过网络检查和SamFirm"
+        return 0
     fi
 
     local VERSION_XML
@@ -108,19 +102,19 @@ FETCH_FW() {
 
     if [[ -z "$FULL_VERSION" ]]; then
         if [[ "$HAS_LOCAL_FIRMWARE" == true ]]; then
-            LOG_INFO "Cannot connect to the internet. Using existing local firmware."
+            LOG_INFO "无法连接到互联网。正在使用现有的本地固件。"
             return 0
         fi
-        ERROR_EXIT "No internet connection and existing firmware found for $DEVICE_MODEL ($REGION_CODE)"
+        ERROR_EXIT "未检测到互联网连接，也未找到适用于 $DEVICE_MODEL ($REGION_CODE) 的现有固件。"
     fi
 
-    LOG_INFO "Latest version: $SIMPLE_VERSION (Android $ANDROID_VERSION)"
+    LOG_INFO "最新版本： $SIMPLE_VERSION (Android $ANDROID_VERSION)"
 
     local CURRENT_VERSION=""
-    [[ -f "$METADATA_FILE" ]] && CURRENT_VERSION=$(<"$METADATA_FILE")
+    [[ -f "$METADATA_FILE" ]] && CURRENT_VERSION=$(cat "$METADATA_FILE")
 
     if [[ "$CURRENT_VERSION" == "$FULL_VERSION" && "$HAS_LOCAL_FIRMWARE" == true ]]; then
-        LOG_END "$FW_PREFIX firmware is up to date/latest ($SIMPLE_VERSION)"
+        LOG_END "$FW_PREFIX 固件已是最新版本 ($SIMPLE_VERSION)"
         return 0
     fi
 
@@ -128,12 +122,11 @@ FETCH_FW() {
     if [[ "$HAS_LOCAL_FIRMWARE" == true ]]; then
         local LOCAL_VERSION="unknown"
         [[ -n "$CURRENT_VERSION" ]] && LOCAL_VERSION=$(echo "$CURRENT_VERSION" | cut -d'_' -f2-)
-        USER_PROMPT="Newer firmware available. Current: $LOCAL_VERSION. Download update?"
+        USER_PROMPT="有更新的固件可用。当前版本： $LOCAL_VERSION.是否下载更新？"
     fi
 
     mkdir -p "$TARGET_DIR"
-
-    LOG_INFO "Downloading firmware $SIMPLE_VERSION..."
+    LOG_INFO "正在下载固件 $SIMPLE_VERSION..."
     rm -rf "$TEMP_DIR"
     mkdir -p "$TEMP_DIR"
 
@@ -143,35 +136,30 @@ FETCH_FW() {
     )
 
     if [[ $? -ne 0 ]]; then
-        ERROR_EXIT "Failed to download the firmware for $DEVICE_MODEL ($REGION_CODE)"
+        ERROR_EXIT "固件下载失败 $DEVICE_MODEL ($REGION_CODE)"
     fi
 
     local NEW_AP_FILE
     NEW_AP_FILE=$(ls "$FW_OUTPUT_DIR"/AP_*.tar.md5 2>/dev/null | head -1)
-
     if [[ -z "$NEW_AP_FILE" ]]; then
-        ERROR_EXIT "Download completed but AP file not found in $FW_OUTPUT_DIR"
+        ERROR_EXIT "下载完成，但未找到 AP 文件 $FW_OUTPUT_DIR"
     fi
 
     if ! _VALIDATE_AP_FILE "$NEW_AP_FILE"; then
-        ERROR_EXIT "Downloaded AP file is corrupted or invalid"
+        ERROR_EXIT "下载的 AP 文件已损坏或无效。"
     fi
 
     rm -rf "$TARGET_DIR"
     mkdir -p "$TARGET_DIR"
-
     mv "$FW_OUTPUT_DIR"/* "$TARGET_DIR"/ 2>/dev/null
     echo "$FULL_VERSION" > "$METADATA_FILE"
 
     local WORKDIR_VAR_NAME="${FW_PREFIX}_WORKDIR"
     local WORKDIR_PATH="${!WORKDIR_VAR_NAME}"
-
     if [[ -n "$WORKDIR_PATH" && -d "$WORKDIR_PATH" ]]; then
         rm -rf "$WORKDIR_PATH" "$WORKSPACE"
     fi
-
 }
-
 
 _CHECK_NETWORK_CONNECTION() {
     curl -s \
@@ -181,22 +169,19 @@ _CHECK_NETWORK_CONNECTION() {
         >/dev/null
 }
 
-
 _VALIDATE_AP_FILE() {
     local AP_FILE_PATH="$1"
-
     [[ ! -f "$AP_FILE_PATH" ]] && return 1
 
     if ! tar -tf "$AP_FILE_PATH" >/dev/null 2>&1; then
-        LOG_WARN "File is not a valid tar archive $AP_FILE_PATH"
+        LOG_WARN "此文件不是有效的 tar 归档文件 $AP_FILE_PATH"
         return 1
     fi
 
     local LZ4_PAYLOADS
     LZ4_PAYLOADS=$(tar -tf "$AP_FILE_PATH" | grep '\.lz4$' 2>/dev/null)
-
     if [[ -z "$LZ4_PAYLOADS" ]]; then
-        LOG "No .lz4 payloads found in $AP_FILE_PATH to validate."
+        LOG "在 $AP_FILE_PATH 中未找到可供验证的 .lz4 载荷。"
         return 1
     fi
 
@@ -209,4 +194,3 @@ _VALIDATE_AP_FILE() {
 
     return 0
 }
-# ]

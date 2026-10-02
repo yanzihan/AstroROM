@@ -104,7 +104,7 @@ ADD_CONTEXT "system" "system/lib64/libhigh_dynamic_range.arcsoft.so" "system_fil
 
 ADD_FROM_FW "stock" "system" "system/lib64/libhigh_res.arcsoft.so"
 ADD_CONTEXT "system" "system/lib64/libhigh_res.arcsoft.so" "system_file"
-EVAL "echo \"libhigh_res.arcsoft.so\" >> \"$WORKSPACE/system/system/etc/public.libraries-arcsoft.txt\""
+eval "echo \"libhigh_res.arcsoft.so\" >> \"$WORKSPACE/system/system/etc/public.libraries-arcsoft.txt\""
 
 ADD_FROM_FW "stock" "system" "system/lib64/libhumantracking.arcsoft.so"
 ADD_CONTEXT "system" "system/lib64/libhumantracking.arcsoft.so" "system_file"
@@ -120,11 +120,11 @@ ADD_CONTEXT "system" "system/lib64/libsecimaging_pdk.camera.samsung.so" "system_
 
 ADD_FROM_FW "stock" "system" "system/lib64/libsuperresolution.arcsoft.so"
 ADD_CONTEXT "system" "system/lib64/libsuperresolution.arcsoft.so" "system_file"
-EVAL "echo \"libsuperresolution.arcsoft.so\" >> \"$WORKSPACE/system/system/etc/public.libraries-arcsoft.txt\""
+eval "echo \"libsuperresolution.arcsoft.so\" >> \"$WORKSPACE/system/system/etc/public.libraries-arcsoft.txt\""
 
 ADD_FROM_FW "stock" "system" "system/lib64/libsuperresolution_wrapper_v2.camera.samsung.so"
 ADD_CONTEXT "system" "system/lib64/libsuperresolution_wrapper_v2.camera.samsung.so" "system_file"
-EVAL "echo \"libsuperresolution_wrapper_v2.camera.samsung.so\" >> \"$WORKSPACE/system/system/etc/public.libraries-camera.samsung.txt\""
+eval "echo \"libsuperresolution_wrapper_v2.camera.samsung.so\" >> \"$WORKSPACE/system/system/etc/public.libraries-camera.samsung.txt\""
 
 ADD_FROM_FW "stock" "system" "system/lib64/libveengine.arcsoft.so"
 ADD_CONTEXT "system" "system/lib64/libveengine.arcsoft.so" "system_file"

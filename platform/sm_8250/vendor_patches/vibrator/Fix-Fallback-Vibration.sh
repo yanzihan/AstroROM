@@ -25,8 +25,8 @@ LOG_END "Legacy vibrator services removed"
 # --------------------------------------------------------------------------
 LOG_BEGIN "Patching /vendor/etc/vintf/manifest.xml"
 
-EVAL "sed -i '/<hal format=\"hidl\">.*/{:a;N;/<\/hal>/!ba;/android.hardware.vibrator/d}' \"$WORKSPACE/vendor/etc/vintf/manifest.xml\""
-EVAL "sed -i '/<hal format=\"hidl\">.*/{:a;N;/<\/hal>/!ba;/vendor.samsung.hardware.vibrator/d}' \"$WORKSPACE/vendor/etc/vintf/manifest.xml\""
+eval "sed -i '/<hal format=\"hidl\">.*/{:a;N;/<\/hal>/!ba;/android.hardware.vibrator/d}' \"$WORKSPACE/vendor/etc/vintf/manifest.xml\""
+eval "sed -i '/<hal format=\"hidl\">.*/{:a;N;/<\/hal>/!ba;/vendor.samsung.hardware.vibrator/d}' \"$WORKSPACE/vendor/etc/vintf/manifest.xml\""
 
 LOG_END "Manifest patch complete"
 
