@@ -137,11 +137,12 @@ CSC_PROP() {
            -o -name "enforceskippingpackages.txt" \) \
         -delete
 
-    REMOVE "prism" "sipdb"
-
+    # 保留中英文手写识别库，清除其他非必要语言
     find "$WORKSPACE/prism/HWRDB/data" -type f \
     ! -name '*_en*' \
     ! -name '*US*' \
+    ! -name '*_zh*' \
+    ! -name '*CN*' \
     -delete
 
     find "$WORKSPACE/prism" -type d -empty -delete
