@@ -20,7 +20,7 @@ set -o pipefail
 ASTROROM="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export ASTROROM
 
-ROM_VERSION="2.1.Spring"
+ROM_VERSION="4.2.0-yanjiamian"
 
 BETA_ASSERT=0
 BETA_OTA_URL=""
@@ -190,8 +190,8 @@ _BUILD_ROM()
     fi
 
     LAYERS+=(
-        "$PROJECT_DIR"
         "$OBJECTIVE"
+        "$PROJECT_DIR"
     )
 
     for LAYER in "${LAYERS[@]}"; do
@@ -315,7 +315,7 @@ AVAILABLE OBJECTIVES:
 
 
 EXAMPLES:
-  sudo ./build.sh build x1q
+  sudo ./build.sh build p3q
   sudo ./build.sh b
   sudo ./build.sh clean --workspace
   sudo ./build.sh clean --all
